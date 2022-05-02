@@ -2,21 +2,13 @@ package db
 
 import (
 	"context"
-	"errors"
 	"time"
-
-	"godo/app"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var (
-	ErrNoTasksDeleted = errors.New("did not delete any tasks")
-)
-
-var log = app.Logger.Sugar()
-
+// Task struct represents a todo app task
 type Task struct {
 	ID       primitive.ObjectID `bson:"_id" json:"id,"`
 	Name     string             `bson:"name" json:"name,omitempty"`
@@ -26,43 +18,44 @@ type Task struct {
 	User     primitive.ObjectID `bson:"user,omitempty" json:"user"`
 }
 
+// GetUserTasks returns a slice of all Tasks for the given user ID
 func GetUserTasks(ID primitive.ObjectID) ([]Task, error) {
-	tasks := GetTasksCol()
+	tasks := TasksCollection()
 
-	filter := bson.M{"user": ID}
-	cursor, err := tasks.Find(context.TODO(), filter)
+	cursor, err := tasks.Find(context.TODO(), bson.M{userField: ID})
 	if err != nil {
-		log.Info("error searching for users tasks", err)
-		return nil, err
+		log.Debug(err)
+		return nil, ErrFindingTasks
 	}
 
 	userTasks := make([]Task, 0)
 	cursor.All(context.TODO(), &userTasks)
-
 	return userTasks, nil
 }
 
-func InsertUserTask(task *Task) error {
-	task.ID = primitive.NewObjectID()
-	tasks := GetTasksCol()
+// InsertTask inserts a task to the database
+func InsertTask(task *Task) error {
+	tasks := TasksCollection()
 
+	task.ID = primitive.NewObjectID()
 	_, err := tasks.InsertOne(context.TODO(), task)
 	if err != nil {
-		log.Debug("error inserting task", err)
-		return err
+		log.Debug(err)
+		return ErrFindingTasks
 	}
 
 	return nil
 }
 
-func UpdateUserTask(task *Task) error {
-	tasks := GetTasksCol()
-
+// UpdateTask updates a task in the database
+func UpdateTask(task *Task) error {
+	tasks := TasksCollection()
 	existingTask := new(Task)
-	err := tasks.FindOne(context.TODO(), bson.M{"_id": task.ID}).Decode(existingTask)
+
+	err := tasks.FindOne(context.TODO(), bson.M{idField: task.ID}).Decode(existingTask)
 	if err != nil {
-		log.Debug("error finding task", err)
-		return err
+		log.Debug(err)
+		return ErrFindingTasks
 	}
 
 	if task.Name != "" {
@@ -72,30 +65,32 @@ func UpdateUserTask(task *Task) error {
 	existingTask.Subtasks = task.Subtasks
 	existingTask.Due = task.Due
 
-	_, err = tasks.ReplaceOne(context.TODO(), bson.M{"_id": task.ID}, existingTask)
+	_, err = tasks.ReplaceOne(context.TODO(), bson.M{idField: task.ID}, existingTask)
 	if err != nil {
-		log.Debug("error update task", err)
-		return err
+		log.Debug(err)
+		return ErrUpdatingTask
 	}
 
 	return nil
 }
 
-func DeleteUserTask(ID string) error {
-	tasks := GetTasksCol()
+// DeleteTask remove task from the database for the given user ID
+func DeleteTask(ID string) error {
+	tasks := TasksCollection()
 
 	id, err := primitive.ObjectIDFromHex(ID)
 	if err != nil {
-		log.Debug("error converting task id to hex")
-		return err
-	}
-	res, err := tasks.DeleteOne(context.TODO(), bson.M{"_id": id})
-	if err != nil {
-		log.Debug("error deleting task", err)
-		return err
+		log.Debug(err)
+		return ErrInvalidID
 	}
 
+	res, err := tasks.DeleteOne(context.TODO(), bson.M{idField: id})
+	if err != nil {
+		log.Debug(err)
+		return ErrDeletingTask
+	}
 	if res.DeletedCount == 0 {
+		log.Debug(ErrNoTasksDeleted)
 		return ErrNoTasksDeleted
 	}
 

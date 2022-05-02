@@ -1,11 +1,8 @@
-package auth
+package handlers
 
 import (
 	"context"
-
-	"godo/app"
-	"godo/app/response"
-	"godo/db"
+	"godo/pkg/db"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -14,57 +11,52 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var log = app.Logger.Sugar()
-
+// SignUp handles the post request to /auth/register
 func SignUp(ctx *fiber.Ctx) error {
-	users := db.GetUserCol()
+	users := db.UsersCollection()
 	user := new(db.User)
+
 	err := ctx.BodyParser(user)
 	if err != nil {
-		log.Debug("error registering: ", err)
-		return ctx.JSON(
-			errWithMessage("Invalid signup data"),
-		)
+		log.Debug(err)
+		return ctx.JSON(errResponseWithMsg(ErrInvalidSignUpData.Error()))
 	}
 
 	user.Password, err = hashPassword(user.Password)
 	if err != nil {
-		return ctx.JSON(
-			errWithMessage("Invalid password"),
-		)
+		// log.Debug(err)
+		return ctx.JSON(errResponseWithMsg(ErrInvalidPassword.Error()))
 	}
 
 	result := users.FindOne(context.TODO(), bson.M{"email": user.Email})
 	if result.Err() == nil {
-		return ctx.JSON(
-			errWithMessage("Email already exists"),
-		)
+		log.Debug(result.Err())
+		return ctx.JSON(errResponseWithMsg(ErrEmailExists.Error()))
 	}
 
 	user.ID = primitive.NewObjectID()
 	_, err = users.InsertOne(context.TODO(), user)
 	if err != nil {
-		return ctx.JSON(
-			errWithMessage("Error when creating user"),
-		)
+		log.Debug(err)
+		return ctx.JSON(errResponseWithMsg(ErrCreatingUser.Error()))
 	}
 
 	tokens, err := GetJWTToken(user.Email)
 	if err != nil {
-		return ctx.JSON(
-			errWithMessage("Error when creating tokens"),
-		)
+		log.Debug(err)
+		return ctx.JSON(errResponseWithMsg(ErrCreatingTokens.Error()))
 	}
 
 	return ctx.JSON(
-		response.Success{
-			Message: "User created successfully",
+		responseSuccess{
+			Message: userCreated,
 			Error:   false,
 			Access:  tokens.Access,
 			Refresh: tokens.Refresh,
 		})
 }
 
+// CurrentUser handles /auth/curr-user path and returns the JSON with current user email.
 func CurrentUser(ctx *fiber.Ctx, claims *jwt.RegisteredClaims) error {
 	return ctx.JSON(
 		fiber.Map{
@@ -73,41 +65,40 @@ func CurrentUser(ctx *fiber.Ctx, claims *jwt.RegisteredClaims) error {
 	)
 }
 
+// Login handles /auth/login path and handles all login procedure
 func Login(ctx *fiber.Ctx) error {
-	users := db.GetUserCol()
+	users := db.UsersCollection()
 	user := new(db.User)
+
 	err := ctx.BodyParser(user)
 	if err != nil {
-		return ctx.JSON(
-			errWithMessage("Invalid login data"),
-		)
+		log.Debug(err)
+		return ctx.JSON(errResponseWithMsg(ErrInvalidLoginData.Error()))
 	}
 
 	result := users.FindOne(context.TODO(), bson.M{"email": user.Email})
 	if result.Err() != nil {
-		return ctx.JSON(
-			errWithMessage("Email does not exist. Please login."),
-		)
+		log.Debug(result.Err())
+		return ctx.JSON(errResponseWithMsg(ErrUserDoesNotExist.Error()))
 	}
 
 	userObj := new(db.User)
 	result.Decode(&userObj)
 	if !verifyPassword(user.Password, userObj.Password) {
-		return ctx.JSON(
-			errWithMessage("Invalid password"),
-		)
+		return ctx.JSON(errResponseWithMsg(ErrInvalidPassword.Error()))
 	}
 
 	tokens, err := GetJWTToken(user.Email)
 	if err != nil {
+		log.Debug(err)
 		return ctx.JSON(
-			errWithMessage("Error creating tokens"),
+			errResponseWithMsg(ErrCreatingTokens.Error()),
 		)
 	}
 
 	return ctx.JSON(
-		response.Success{
-			Message: "Logged in succesfully",
+		responseSuccess{
+			Message: loginSuccess,
 			Error:   false,
 			Access:  tokens.Access,
 			Refresh: tokens.Refresh,
@@ -115,24 +106,22 @@ func Login(ctx *fiber.Ctx) error {
 	)
 }
 
+// hashPassword hashes a password string using bcrypt package.
+//
+// If it fails, it returns and ErrHashingPwd
+// Otherwise, returns the hashed password.
 func hashPassword(pwd string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(pwd), 14)
 	if err != nil {
-		log.Debug("error hashing password", err)
-		return "", err
+		log.Debug(err)
+		return "", ErrHashingPwd
 	}
 
 	return string(bytes), nil
 }
 
+// verifyPassword uses bcrypt package to compare hash and password and returns true on success, or false on error.
 func verifyPassword(pwd, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd))
 	return err == nil
-}
-
-func errWithMessage(msg string) response.Error {
-	return response.Error{
-		Message: msg,
-		Error:   true,
-	}
 }

@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 
+	"godo/app"
+	"godo/app/response"
+	"godo/db"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/handsomefox/godo/backend/app"
-	"github.com/handsomefox/godo/backend/app/response"
-	"github.com/handsomefox/godo/backend/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -20,6 +21,7 @@ func SignUp(ctx *fiber.Ctx) error {
 	user := new(db.User)
 	err := ctx.BodyParser(user)
 	if err != nil {
+		log.Debug("error registering: ", err)
 		return ctx.JSON(
 			errWithMessage("Invalid signup data"),
 		)

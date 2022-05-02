@@ -5,9 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"godo/app/response"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/handsomefox/godo/backend/app/response"
 )
 
 var (
@@ -51,13 +52,13 @@ func GetJWTToken(user string) (*Tokens, error) {
 	return tokens, nil
 }
 
-func RefreshToken(c *fiber.Ctx) error {
+func RefreshToken(ctx *fiber.Ctx) error {
 	tokens := new(response.TokenData)
 	claims := &jwt.RegisteredClaims{}
 
-	err := c.BodyParser(tokens)
+	err := ctx.BodyParser(tokens)
 	if err != nil {
-		return c.JSON(response.Error{
+		return ctx.JSON(response.Error{
 			Message: err.Error(),
 		})
 	}
@@ -67,20 +68,20 @@ func RefreshToken(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		return c.JSON(response.Error{
+		return ctx.JSON(response.Error{
 			Message: err.Error(),
 		})
 	}
 
 	if claims.Subject != "Refresh" {
-		return c.JSON(response.Error{
+		return ctx.JSON(response.Error{
 			Message: "Invalid Token. Not a refresh token.",
 		})
 	}
 
 	token, err := GetJWTToken(claims.Issuer)
 	if err != nil {
-		return c.JSON(response.Error{
+		return ctx.JSON(response.Error{
 			Message: "Error while creating token",
 		})
 	}
@@ -88,7 +89,7 @@ func RefreshToken(c *fiber.Ctx) error {
 	tokens.AccessToken = token.Access
 	tokens.RefreshToken = token.Refresh
 
-	return c.JSON(tokens)
+	return ctx.JSON(tokens)
 }
 
 func VerifyJwtSess(token string) (string, bool) {

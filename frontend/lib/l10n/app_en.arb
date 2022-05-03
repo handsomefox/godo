@@ -1,0 +1,22 @@
+{
+  "appName": "godo",
+  "emailTooltip": "Check you email.",
+  "nameTooltip": "Check your name.",
+  "passwordTooltip": "At least 8 characters, 1 upppercase and 1 lowercase letter, 1 number",
+  "logOutText": "Log out",
+  "logInText": "Log in",
+  "registerText": "Register",
+  "createNewTask": "Create new task",
+  "menu": "Menu",
+  "search": "Search",
+  "emptyUsername": "User name",
+  "add": "Add",
+  "login": "Login",
+  "password": "Password",
+  "email": "Email",
+  "name": "Name",
+  "invalidEmail": "Invalid Email",
+  "invalidName": "Invalid Name",
+  "invalidPassword": "Invalid Password",
+  "errorRegister": "Error registering: "
+}

@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/auth.dart';
-import 'package:frontend/providers/task_model.dart';
+import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/providers/task_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/pages/home_page.dart';
 
-import 'home.dart';
-
-class MainWidget extends StatefulWidget {
-  const MainWidget({Key? key, required this.user}) : super(key: key);
-
+class AppWidget extends StatefulWidget {
+  const AppWidget({Key? key, required this.user}) : super(key: key);
   final User? user;
 
   @override
-  State<MainWidget> createState() => _MainWidgetState();
+  State<AppWidget> createState() => _AppWidgetState();
 }
 
-class _MainWidgetState extends State<MainWidget> {
+class _AppWidgetState extends State<AppWidget> {
+  final List<Locale> appSupportedLocales = const [
+    Locale('en', ''), // English, no country code
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => createTaskModel(context),
+          create: (BuildContext context) => taskModel(context),
         ),
       ],
       child: MaterialApp(
@@ -33,15 +35,13 @@ class _MainWidgetState extends State<MainWidget> {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [
-          Locale('en', ''), // English, no country code
-        ],
+        supportedLocales: appSupportedLocales,
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
-        theme: lightTheme(context),
-        darkTheme: darkTheme(context),
+        themeMode: ThemeMode.system,
+        theme: getLightTheme(context),
+        darkTheme: getDarkTheme(context),
         title: AppLocalizations.of(context)?.appName == null
-            ? "godo"
+            ? 'godo'
             : AppLocalizations.of(context)!.appName,
         home: HomePage(
           user: widget.user,
@@ -50,14 +50,14 @@ class _MainWidgetState extends State<MainWidget> {
     );
   }
 
-  TaskModel createTaskModel(BuildContext context) {
+  TasksProvider taskModel(BuildContext context) {
     if (widget.user != null) {
-      return TaskModel.fromUser(context, widget.user);
+      return TasksProvider.fromUser(context, widget.user);
     }
-    return TaskModel();
+    return TasksProvider();
   }
 
-  ThemeData lightTheme(BuildContext context) {
+  ThemeData getLightTheme(BuildContext context) {
     return ThemeData(
       scaffoldBackgroundColor: const Color(0xFFF6F6F6),
       textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
@@ -65,7 +65,7 @@ class _MainWidgetState extends State<MainWidget> {
     );
   }
 
-  ThemeData darkTheme(BuildContext context) {
+  ThemeData getDarkTheme(BuildContext context) {
     return ThemeData(
       scaffoldBackgroundColor: Colors.black,
       textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),

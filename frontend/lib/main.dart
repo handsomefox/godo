@@ -1,57 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/auth.dart';
-import 'package:frontend/storage.dart';
-import 'package:frontend/widgets/mainwidget.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/services/storage_service.dart';
+import 'package:frontend/widgets/app_widget.dart';
+import 'package:http/http.dart' as http;
 
-class TodoApp extends StatelessWidget {
-  const TodoApp({Key? key}) : super(key: key);
+Future<User?> loadUser() async {
+  Data? storage = await StorageService.read();
+  if (storage == null) {
+    return null;
+  }
+
+  AuthApiService authApi = AuthApiService();
+  http.Response? response = await authApi
+      .login(storage.email, storage.password)
+      .timeout(const Duration(seconds: 5));
+
+  if (response == null || response.statusCode != 200) {
+    return null;
+  }
+
+  User user = User.fromRequestBody(response.body);
+  StorageService.save(Data(
+    email: user.email,
+    name: user.name,
+    password: storage.password,
+    accessToken: user.accessToken,
+    refreshToken: user.refreshToken,
+  ));
+
+  return user;
+}
+
+class GodoApplication extends StatelessWidget {
+  const GodoApplication({Key? key, this.user}) : super(key: key);
+
+  final User? user;
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<User?>(
-      future: getUser(),
-      builder: (context, user) {
-        FlutterNativeSplash.remove();
-        return MainWidget(user: user.data);
-      },
-    );
+    return AppWidget(user: user);
   }
 }
 
 void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(const TodoApp());
-}
-
-Future<User?> getUser() async {
-  var data = await MyStorage.read();
-
-  if (data == null) {
-    return null;
-  }
-
-  var authApi = AuthApi();
-  var response = await authApi
-      .login(data.email, data.password)
-      .timeout(const Duration(seconds: 5));
-
-  if (response == null) {
-    return null;
-  }
-
-  if (response.statusCode != 200) {
-    return null;
-  }
-
-  User user = User.fromReqBody(response.body);
-  MyStorage.save(Data(
-    email: user.email,
-    name: user.name,
-    password: data.password,
-    access: user.token,
-    refresh: user.refresh,
+  WidgetsFlutterBinding.ensureInitialized();
+  User? user = await loadUser();
+  runApp(GodoApplication(
+    user: user,
   ));
-
-  return user;
 }

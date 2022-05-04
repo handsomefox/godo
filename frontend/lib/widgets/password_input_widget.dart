@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class PasswordInput extends StatelessWidget {
-  const PasswordInput({
+class PasswordInputWidget extends StatelessWidget {
+  const PasswordInputWidget({
     Key? key,
     required this.passwordController,
   }) : super(key: key);
@@ -15,7 +15,7 @@ class PasswordInput extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (input) {
+        validator: (String? input) {
           return input!.isValidPwd()
               ? null
               : AppLocalizations.of(context)!.passwordTooltip;

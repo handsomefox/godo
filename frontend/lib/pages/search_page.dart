@@ -1,8 +1,11 @@
 // Search Page
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/providers/task_model.dart';
-import 'package:frontend/widgets/task_list.dart';
+import 'package:frontend/models/task_model.dart';
+import 'package:frontend/providers/task_provider.dart';
+import 'package:frontend/widgets/task_card_list_widget.dart';
 import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
@@ -13,10 +16,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final TextEditingController searchController = TextEditingController();
-  var list = const TaskList(
-    tasks: [],
-  );
+  final TextEditingController _searchController = TextEditingController();
+  TaskCardListWidget searchList = const TaskCardListWidget(tasks: []);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,21 +29,22 @@ class _SearchPageState extends State<SearchPage> {
             color: Colors.white, borderRadius: BorderRadius.circular(20)),
         child: Center(
           child: TextField(
-            onChanged: (value) {
-              var filtered = Provider.of<TaskModel>(context, listen: false)
-                  .getFilteredTasks(context, value);
+            onChanged: (String value) {
+              UnmodifiableListView<Task> filtered =
+                  Provider.of<TasksProvider>(context, listen: false)
+                      .filtered(context, value);
               setState(() {
-                list = TaskList(tasks: filtered);
+                searchList = TaskCardListWidget(tasks: filtered);
               });
             },
-            controller: searchController,
+            controller: _searchController,
             decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   iconSize: 16,
                   icon: const Icon(Icons.clear),
                   onPressed: () {
-                    searchController.clear();
+                    _searchController.clear();
                   },
                 ),
                 hintText: AppLocalizations.of(context)!.search,
@@ -57,7 +59,7 @@ class _SearchPageState extends State<SearchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              list,
+              searchList,
             ],
           ),
         ),

@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 
-class EmailInput extends StatelessWidget {
-  const EmailInput({
+class NameInputWidget extends StatelessWidget {
+  const NameInputWidget({
     Key? key,
-    required this.emailController,
+    required this.nameController,
   }) : super(key: key);
 
-  final TextEditingController emailController;
+  final TextEditingController nameController;
 
   @override
   Widget build(BuildContext context) {
@@ -15,16 +15,16 @@ class EmailInput extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (input) {
-          return input!.isValidEmail()
+        validator: (String? input) {
+          return input!.isValidName()
               ? null
-              : AppLocalizations.of(context)!.emailTooltip;
+              : AppLocalizations.of(context)!.nameTooltip;
         },
         cursorColor: Theme.of(context).colorScheme.onBackground,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onBackground,
         ),
-        controller: emailController,
+        controller: nameController,
         decoration: InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
@@ -32,7 +32,7 @@ class EmailInput extends StatelessWidget {
             ),
           ),
           border: const OutlineInputBorder(),
-          labelText: AppLocalizations.of(context)!.email,
+          labelText: AppLocalizations.of(context)!.name,
           labelStyle: TextStyle(
             color: Theme.of(context).colorScheme.onBackground,
           ),
@@ -42,10 +42,8 @@ class EmailInput extends StatelessWidget {
   }
 }
 
-extension EmailValidator on String {
-  bool isValidEmail() {
-    return RegExp(
-            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(this);
+extension NameValidator on String {
+  bool isValidName() {
+    return RegExp(r'.{3,}').hasMatch(this);
   }
 }

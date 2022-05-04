@@ -1,65 +1,56 @@
 import 'dart:convert';
-import 'package:frontend/auth.dart';
-import 'package:frontend/storage.dart';
-import 'package:frontend/widgets/home.dart';
-
+import 'package:frontend/services/storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/mainwidget.dart';
-import 'package:frontend/widgets/name_input.dart';
-
-import 'package:frontend/widgets/gologo.dart';
-import 'package:frontend/widgets/password_input.dart';
-import 'package:frontend/widgets/email_input.dart';
-
+import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/widgets/gologo_widget.dart';
+import 'package:frontend/widgets/app_widget.dart';
+import 'package:frontend/widgets/password_input_widget.dart';
+import 'package:frontend/widgets/email_input_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart' as http;
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _RegisterState();
+  State<StatefulWidget> createState() => _LoginState();
 }
 
-class _RegisterState extends State<RegisterPage> {
-  var nameController = TextEditingController();
-  var emailController = TextEditingController();
-  var passwordController = TextEditingController();
+class _LoginState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.registerText)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.login),
+      ),
       body: Padding(
           padding: const EdgeInsets.all(10),
           child: ListView(
             children: <Widget>[
-              const GoLogo(),
+              const GoLogoWidget(),
               const Padding(padding: EdgeInsets.symmetric(vertical: 32)),
-              NameInput(nameController: nameController),
-              EmailInput(emailController: emailController),
-              PasswordInput(passwordController: passwordController),
+              EmailInputWidget(emailController: _emailController),
+              PasswordInputWidget(passwordController: _passwordController),
               const Padding(padding: EdgeInsets.symmetric(vertical: 32)),
+              LoginButton(
+                  emailController: _emailController,
+                  passwordController: _passwordController),
               const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
-              RegisterButton(
-                emailController: emailController,
-                nameController: nameController,
-                passwordController: passwordController,
-              ),
             ],
           )),
     );
   }
 }
 
-class RegisterButton extends StatelessWidget {
-  const RegisterButton({
+class LoginButton extends StatelessWidget {
+  const LoginButton({
     Key? key,
-    required this.nameController,
     required this.emailController,
     required this.passwordController,
   }) : super(key: key);
-
-  final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
 
@@ -73,20 +64,21 @@ class RegisterButton extends StatelessWidget {
             primary: Theme.of(context).colorScheme.primary,
             onPrimary: Theme.of(context).colorScheme.onPrimary,
           ),
-          child: Text(AppLocalizations.of(context)!.registerText),
+          child: Text(
+            AppLocalizations.of(context)!.login,
+          ),
           onPressed: () async {
-            var email = emailController.text;
-            var password = passwordController.text;
-            var name = nameController.text;
+            String emailText = emailController.text;
+            String passwordText = passwordController.text;
 
-            if (!email.isValidEmail()) {
+            if (!emailText.isValidEmail()) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(AppLocalizations.of(context)!.invalidEmail)),
               );
               return;
             }
-            if (!password.isValidPwd()) {
+            if (!passwordText.isValidPwd()) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content:
@@ -95,16 +87,8 @@ class RegisterButton extends StatelessWidget {
               return;
             }
 
-            if (!name.isValidName()) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(AppLocalizations.of(context)!.invalidName)),
-              );
-              return;
-            }
-            var api = AuthApi();
-
-            var response = await api.register(name, email, password);
+            AuthApiService api = AuthApiService();
+            http.Response? response = await api.login(emailText, passwordText);
             if (response == null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -112,36 +96,35 @@ class RegisterButton extends StatelessWidget {
               );
               return;
             }
-            var json = jsonDecode(response.body);
-
+            var decodedBody = jsonDecode(response.body);
             if (response.statusCode != 200) {
-              var errorMessage = json["message"].toString();
+              String errorMessage = decodedBody['message'].toString();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(errorMessage)),
               );
               return;
             }
-            User user = User.fromReqBody(response.body);
-            MyStorage.save(Data(
+            User user = User.fromRequestBody(response.body);
+            StorageService.save(Data(
               email: user.email,
               name: user.name,
-              password: password,
-              access: user.token,
-              refresh: user.refresh,
+              password: passwordText,
+              accessToken: user.accessToken,
+              refreshToken: user.refreshToken,
             ));
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                   content: Text(AppLocalizations.of(context)!.loginSuccess)),
             );
 
-            Navigator.pushAndRemoveUntil(
+            await Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (context) => MainWidget(
+                  builder: (BuildContext context) => AppWidget(
                         user: user,
                       ),
                   maintainState: false),
-              (route) => false,
+              (Route route) => false,
             );
           },
         ));

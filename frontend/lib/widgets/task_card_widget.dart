@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-
-import 'package:frontend/models/task.dart';
+import 'package:frontend/models/task_model.dart';
 import 'package:intl/intl.dart';
 
-class TaskListItem extends StatelessWidget {
+class TaskCardWidget extends StatelessWidget {
+  TaskCardWidget({Key? key, required this.task}) : super(key: key);
+
   final Task task;
-  final DateFormat formatter = DateFormat();
-  TaskListItem({Key? key, required this.task}) : super(key: key);
+  final DateFormat _formatter = DateFormat();
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class TaskListItem extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             task.name,
             style: getTitleTextStyle(context),
@@ -32,7 +32,7 @@ class TaskListItem extends StatelessWidget {
             style: getTextStyle(context),
           ),
           Text(
-            task.due != null ? formatter.format(task.due as DateTime) : "",
+            task.due != null ? _formatter.format(task.due as DateTime) : '',
             style: getOtherDateTextStyle(context),
           ),
         ],
@@ -50,7 +50,7 @@ class TaskListItem extends StatelessWidget {
   }
 
   TextStyle getTextStyle(BuildContext context) {
-    var textColor = Theme.of(context).colorScheme.onBackground;
+    Color textColor = Theme.of(context).colorScheme.onBackground;
     return TextStyle(
       color: textColor,
       fontSize: 14.0,
@@ -58,7 +58,7 @@ class TaskListItem extends StatelessWidget {
   }
 
   TextStyle getTitleTextStyle(BuildContext context) {
-    var textColor = Theme.of(context).colorScheme.onBackground;
+    Color textColor = Theme.of(context).colorScheme.onBackground;
     return TextStyle(
       color: textColor,
       fontSize: 22.0,

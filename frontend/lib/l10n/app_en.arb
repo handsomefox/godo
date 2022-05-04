@@ -2,7 +2,8 @@
   "appName": "godo",
   "emailTooltip": "Check you email.",
   "nameTooltip": "Check your name.",
-  "passwordTooltip": "At least 8 characters, 1 upppercase and 1 lowercase letter, 1 number",
+  "passwordTooltip": "Password must contain at least 8 characters and 1 number",
+  "selectDateTooltip": "Select date",
   "logOutText": "Log out",
   "logInText": "Log in",
   "registerText": "Register",
@@ -23,5 +24,9 @@
   "defaulUsername": "Default User",
   "unauthorized": "Unauthorized",
   "serverError": "Internal server error, try again later :(",
-  "taskHint": "Enter task title..."
+  "taskHint": "Enter task title...",
+  "descriptionHint": "Enter the task description",
+  "selectedTIme": "Selected date: ",
+  "todoHint": "Enter to-do item",
+  "addTodoHint": "Add new to-do"
 }

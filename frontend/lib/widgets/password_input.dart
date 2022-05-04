@@ -44,6 +44,6 @@ class PasswordInput extends StatelessWidget {
 
 extension PasswordValidator on String {
   bool isValidPwd() {
-    return RegExp(r'(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}').hasMatch(this);
+    return RegExp(r'(?=.*?[a-z])(?=.*?[0-9]).{8,}').hasMatch(this);
   }
 }

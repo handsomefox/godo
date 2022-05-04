@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/auth.dart';
 import 'package:frontend/pages/add.dart';
 import 'package:frontend/pages/register.dart';
 import 'package:frontend/pages/search.dart';
+import 'package:frontend/storage.dart';
+import 'package:frontend/widgets/mainwidget.dart';
 import 'package:frontend/widgets/user.dart';
 import 'package:frontend/providers/task_model.dart';
 import 'package:frontend/widgets/task_list.dart';
@@ -11,7 +14,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../pages/login.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key, required this.user}) : super(key: key);
+  final User? user;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,13 +24,11 @@ class HomePage extends StatefulWidget {
 enum PopupValues {
   settings,
   signin,
+  signout,
   signup,
 }
 
 class _HomePageState extends State<HomePage> {
-  bool loggedIn = false;
-  var currentUsername = "ebek";
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,31 +41,35 @@ class _HomePageState extends State<HomePage> {
                 Text(AppLocalizations.of(context)!.appName),
               ],
             )),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+        body: SizedBox(
           width: double.infinity,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  child: UserDataWidget(
-                      name: currentUsername, userIcon: Icons.adb_sharp),
-                  margin: const EdgeInsets.only(bottom: 20.0),
-                ),
-                Consumer<TaskModel>(
-                  builder: (context, value, child) =>
-                      TaskList(tasks: value.tasks),
-                )
-              ],
+          child: ScrollConfiguration(
+            behavior: const MaterialScrollBehavior(),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    child: UserDataWidget(
+                        name: widget.user == null
+                            ? AppLocalizations.of(context)!.defaulUsername
+                            : widget.user!.name,
+                        userIcon: Icons.person),
+                    margin: const EdgeInsets.only(top: 24, bottom: 20.0),
+                  ),
+                  Consumer<TaskModel>(
+                      builder: (context, value, child) =>
+                          TaskList(tasks: value.getTasks(context))),
+                ],
+              ),
             ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context)!.createNewTask,
           onPressed: () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const AddTaskScreen()));
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => AddTaskScreen(user: widget.user)));
           },
           child: const Icon(Icons.add),
         ));
@@ -101,6 +107,16 @@ class _HomePageState extends State<HomePage> {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const RegisterPage()));
         break;
+      case PopupValues.signout:
+        MyStorage.clear();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const MainWidget(), maintainState: false),
+          (route) => false,
+        );
+
+        break;
     }
   }
 
@@ -111,13 +127,13 @@ class _HomePageState extends State<HomePage> {
       textStyle: TextStyle(
         color: Theme.of(context).colorScheme.onBackground,
       ),
-      value: PopupValues.signin,
-      child: Text(loggedIn
-          ? AppLocalizations.of(context)!.logOutText
-          : AppLocalizations.of(context)!.logInText),
+      value: widget.user == null ? PopupValues.signin : PopupValues.signout,
+      child: Text(widget.user == null
+          ? AppLocalizations.of(context)!.logInText
+          : AppLocalizations.of(context)!.logOutText),
     )));
 
-    if (!loggedIn) {
+    if (widget.user == null) {
       list.add(PopupMenuItem<PopupValues>(
         textStyle: TextStyle(
           color: Theme.of(context).colorScheme.onBackground,

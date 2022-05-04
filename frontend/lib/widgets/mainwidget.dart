@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/auth.dart';
 import 'package:frontend/providers/task_model.dart';
+import 'package:frontend/storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,9 +10,7 @@ import 'package:provider/provider.dart';
 import 'home.dart';
 
 class MainWidget extends StatefulWidget {
-  const MainWidget({
-    Key? key,
-  }) : super(key: key);
+  const MainWidget({Key? key}) : super(key: key);
 
   @override
   State<MainWidget> createState() => _MainWidgetState();
@@ -19,32 +19,79 @@ class MainWidget extends StatefulWidget {
 class _MainWidgetState extends State<MainWidget> {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => TaskModel(),
-        ),
-      ],
-      child: MaterialApp(
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+    return FutureBuilder<User?>(
+      future: getUser(),
+      builder: (context, user) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => createTaskModel(context, user.data),
+          ),
         ],
-        supportedLocales: const [
-          Locale('en', ''), // English, no country code
-        ],
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
-        theme: lightTheme(context),
-        darkTheme: darkTheme(context),
-        title: AppLocalizations.of(context)?.appName == null
-            ? "godo"
-            : AppLocalizations.of(context)!.appName,
-        home: const HomePage(),
+        child: MaterialApp(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''), // English, no country code
+            ],
+            debugShowCheckedModeBanner: false,
+            themeMode: ThemeMode.dark,
+            theme: lightTheme(context),
+            darkTheme: darkTheme(context),
+            title: AppLocalizations.of(context)?.appName == null
+                ? "godo"
+                : AppLocalizations.of(context)!.appName,
+            home: HomePage(user: user.data)),
       ),
     );
+  }
+
+  Future<User?> getUser() async {
+    var data = await MyStorage.read();
+
+    if (data == null) {
+      return null;
+    }
+
+    // return User(
+    //     email: data.email,
+    //     name: data.name,
+    //     token: data.access,
+    //     refresh: data.refresh);
+
+    var authApi = AuthApi();
+    var response = await authApi
+        .login(data.email, data.password)
+        .timeout(const Duration(seconds: 2));
+
+    if (response == null) {
+      return null;
+    }
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    User user = User.fromReqBody(response.body);
+    MyStorage.save(Data(
+      email: user.email,
+      name: user.name,
+      password: data.password,
+      access: user.token,
+      refresh: user.refresh,
+    ));
+
+    return user;
+  }
+
+  TaskModel createTaskModel(BuildContext context, User? user) {
+    if (user != null) {
+      return TaskModel.fromUser(context, user);
+    }
+    return TaskModel();
   }
 
   ThemeData lightTheme(BuildContext context) {

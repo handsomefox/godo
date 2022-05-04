@@ -1,9 +1,11 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:frontend/auth.dart';
+import 'package:frontend/storage.dart';
+import 'package:frontend/widgets/home.dart';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/mainwidget.dart';
 import 'package:frontend/widgets/name_input.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:frontend/widgets/gologo.dart';
 import 'package:frontend/widgets/password_input.dart';
@@ -73,26 +75,18 @@ class RegisterButton extends StatelessWidget {
           ),
           child: Text(AppLocalizations.of(context)!.registerText),
           onPressed: () async {
-            var regdata = RegisterData(nameController.text,
-                emailController.text, passwordController.text);
+            var email = emailController.text;
+            var password = passwordController.text;
+            var name = nameController.text;
 
-            if (!regdata.email.isValidEmail(true)) {
+            if (!email.isValidEmail()) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(AppLocalizations.of(context)!.invalidEmail)),
               );
               return;
             }
-
-            if (!regdata.name.isValidName()) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(AppLocalizations.of(context)!.invalidName)),
-              );
-              return;
-            }
-
-            if (!regdata.password.isValidPwd()) {
+            if (!password.isValidPwd()) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content:
@@ -100,52 +94,54 @@ class RegisterButton extends StatelessWidget {
               );
               return;
             }
-            const storage = FlutterSecureStorage();
 
-            var encoded = regdata.toJson();
-            var str = 'http://127.0.0.1:8080/api/v1/auth/register';
-            var url = Uri.parse(str);
-            var resp = await http.post(url, body: encoded);
-            var decoded = jsonDecode(resp.body);
-
-            var error = decoded["error"].toString();
-            if (error == "true") {
-              var data = AppLocalizations.of(context)!.errorRegister +
-                  decoded["message"].toString();
+            if (!name.isValidName()) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(data)),
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)!.invalidName)),
               );
               return;
             }
-            storage.write(key: "access_token", value: decoded["access_token"]);
-            storage.write(
-                key: "refresh_token", value: decoded["refresh_token"]);
-            Navigator.pop(context);
+            var api = AuthApi();
+
+            var response = await api.register(name, email, password);
+            if (response == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)!.serverError)),
+              );
+              return;
+            }
+            var json = jsonDecode(response.body);
+
+            if (response.statusCode != 200) {
+              var errorMessage = json["message"].toString();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(errorMessage)),
+              );
+              return;
+            }
+            User user = User.fromReqBody(response.body);
+            MyStorage.save(Data(
+              email: user.email,
+              name: user.name,
+              password: password,
+              access: user.token,
+              refresh: user.refresh,
+            ));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(AppLocalizations.of(context)!.loginSuccess)),
+            );
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const MainWidget(),
+                  maintainState: false),
+              (route) => false,
+            );
           },
         ));
   }
-}
-
-class RegisterData {
-  final String name;
-  final String email;
-  final String password;
-
-  RegisterData(this.name, this.email, this.password);
-
-  toJson() {
-    return {
-      'name': name,
-      'email': email,
-      'password': password,
-    };
-  }
-}
-
-Future<bool> checkInDatabase(String email) async {
-  var str = 'http://127.0.0.1:8080/api/v1/auth/check-email/' + email;
-  var url = Uri.parse(str);
-  var resp = await http.post(url);
-  var exists = jsonDecode(resp.body)['exists'];
-  return exists as bool;
 }

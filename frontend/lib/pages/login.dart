@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'package:frontend/storage.dart';
+import 'package:frontend/widgets/home.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/auth.dart';
 import 'package:frontend/widgets/gologo.dart';
+import 'package:frontend/widgets/mainwidget.dart';
 import 'package:frontend/widgets/password_input.dart';
 import 'package:frontend/widgets/email_input.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -63,48 +68,64 @@ class LoginButton extends StatelessWidget {
             AppLocalizations.of(context)!.login,
           ),
           onPressed: () async {
-            // var loginData =
-            // LoginData(emailController.text, passwordController.text);
+            var email = emailController.text;
+            var password = passwordController.text;
 
-            // if (!loginData.email.isValidEmail(true)) {
-            // ScaffoldMessenger.of(context).showSnackBar(
-            // const SnackBar(content: Text('Invalid Email')),
-            // );
-            // return;
-            // }
+            if (!email.isValidEmail()) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)!.invalidEmail)),
+              );
+              return;
+            }
+            if (!password.isValidPwd()) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.invalidPassword)),
+              );
+              return;
+            }
+            var api = AuthApi();
 
-            // if (!loginData.password.isValidPwd()) {
-            // ScaffoldMessenger.of(context).showSnackBar(
-            // const SnackBar(content: Text('Invalid Password')),
-            // );
-            // return;
-            // }
-            // const storage = FlutterSecureStorage();
+            var response = await api.login(email, password);
+            if (response == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(AppLocalizations.of(context)!.serverError)),
+              );
+              return;
+            }
+            var json = jsonDecode(response.body);
 
-            // var encoded = loginData.toJson();
+            if (response.statusCode != 200) {
+              var errorMessage = json["message"].toString();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(errorMessage)),
+              );
+              return;
+            }
+            User user = User.fromReqBody(response.body);
+            MyStorage.save(Data(
+              email: user.email,
+              name: user.name,
+              password: password,
+              access: user.token,
+              refresh: user.refresh,
+            ));
 
-            // var str = 'http://127.0.0.1:8080/api/v1/auth/login';
-            // var url = Uri.parse(str);
-            // var resp = await http.post(url, body: encoded);
-            // var decoded = jsonDecode(resp.body);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(AppLocalizations.of(context)!.loginSuccess)),
+            );
 
-            // var error = decoded["error"].toString();
-            // if (error == "true") {
-            //   var data = 'Error logging in: ' + decoded["message"].toString();
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(content: Text(data)),
-            //   );
-            //   return;
-            // }
-            // storage.write(key: "access_token", value: decoded["access_token"]);
-            // storage.write(
-            //     key: "refresh_token", value: decoded["refresh_token"]);
-
-            // const loginSuccess = "Logged in successfully";
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   const SnackBar(content: Text(loginSuccess)),
-            // );
-            Navigator.pop(context);
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const MainWidget(),
+                  maintainState: false),
+              (route) => false,
+            );
           },
         ));
   }

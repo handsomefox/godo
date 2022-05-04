@@ -17,7 +17,7 @@ class TaskList extends StatelessWidget {
   List<Widget> getChildrenTasks() {
     var list = tasks
         .map((task) => Container(
-            margin: const EdgeInsets.only(bottom: 20.0),
+            margin: const EdgeInsets.fromLTRB(32, 8, 32, 8),
             child: TaskListItem(task: task)))
         .toList();
     return list;

@@ -18,5 +18,10 @@
   "invalidEmail": "Invalid Email",
   "invalidName": "Invalid Name",
   "invalidPassword": "Invalid Password",
-  "errorRegister": "Error registering: "
+  "errorRegister": "Error registering: ",
+  "loginSuccess": "Logged in successfully",
+  "defaulUsername": "Default User",
+  "unauthorized": "Unauthorized",
+  "serverError": "Internal server error, try again later :(",
+  "taskHint": "Enter task title..."
 }

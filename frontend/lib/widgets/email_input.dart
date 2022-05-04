@@ -16,7 +16,7 @@ class EmailInput extends StatelessWidget {
       child: TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (input) {
-          return input!.isValidEmail(true)
+          return input!.isValidEmail()
               ? null
               : AppLocalizations.of(context)!.emailTooltip;
         },
@@ -43,7 +43,7 @@ class EmailInput extends StatelessWidget {
 }
 
 extension EmailValidator on String {
-  bool isValidEmail(bool checkInDB) {
+  bool isValidEmail() {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(this);

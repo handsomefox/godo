@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:frontend/models/task.dart';
+import 'package:intl/intl.dart';
 
 class TaskListItem extends StatelessWidget {
   final Task task;
-  const TaskListItem({Key? key, required this.task}) : super(key: key);
+  final DateFormat formatter = DateFormat();
+  TaskListItem({Key? key, required this.task}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class TaskListItem extends StatelessWidget {
             style: getTextStyle(context),
           ),
           Text(
-            task.due.toString(),
+            task.due != null ? formatter.format(task.due as DateTime) : "",
             style: getOtherDateTextStyle(context),
           ),
         ],

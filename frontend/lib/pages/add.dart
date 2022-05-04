@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/auth.dart';
 import 'package:frontend/models/task.dart';
 import 'package:frontend/providers/task_model.dart';
 import 'package:provider/provider.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({Key? key}) : super(key: key);
+  const AddTaskScreen({Key? key, required this.user}) : super(key: key);
+  final User? user;
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -15,7 +17,7 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final taskTitleController = TextEditingController();
   final taskDescriptionController = TextEditingController();
-  DateTime selectedDate = DateTime.now();
+  DateTime? selectedDate;
 
   void onAdd() {
     final String textVal = taskTitleController.text;
@@ -27,7 +29,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         due: selectedDate,
         subtasks: [],
       );
-      Provider.of<TaskModel>(context, listen: false).add(task);
+      Provider.of<TaskModel>(context, listen: false).add(task, widget.user);
       Navigator.pop(context);
     }
   }

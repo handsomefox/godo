@@ -10,12 +10,18 @@ import (
 
 // Task struct represents a todo app task
 type Task struct {
-	ID       primitive.ObjectID `bson:"_id" json:"id,"`
-	Name     string             `bson:"name" json:"name,omitempty"`
-	Desc     string             `bson:"desc" json:"desc"`
-	Subtasks []string           `bson:"subtasks" json:"subtasks"`
-	Due      time.Time          `bson:"due" json:"due"`
-	User     primitive.ObjectID `bson:"user,omitempty" json:"user"`
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	Name      string             `bson:"name" json:"name,omitempty"`
+	Desc      string             `bson:"desc" json:"desc"`
+	Subtasks  []Subtask          `bson:"subtasks" json:"subtasks"`
+	Due       *time.Time         `bson:"due" json:"due"`
+	User      primitive.ObjectID `bson:"user,omitempty" json:"user"`
+	Completed bool               `bson:"completed" json:"completed" default:"false"`
+}
+
+type Subtask struct {
+	Name      string `bson:"name" json:"name"`
+	Completed bool   `bson:"completed" json:"completed" defaukt:"false"`
 }
 
 // GetUserTasks returns a slice of all Tasks for the given user ID

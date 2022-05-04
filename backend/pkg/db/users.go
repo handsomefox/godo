@@ -14,6 +14,7 @@ const (
 	userField  = "user"
 	emailField = "email"
 	pwdField   = "password"
+	nameField  = "name"
 )
 
 // User struct represents a registered user

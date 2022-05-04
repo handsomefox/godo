@@ -22,6 +22,10 @@ func SignUp(ctx *fiber.Ctx) error {
 		return ctx.JSON(errResponseWithMsg(ErrInvalidSignUpData.Error()))
 	}
 
+	if user.Email == "" || user.Name == "" || user.Password == "" {
+		return ctx.JSON(errResponseWithMsg(ErrInvalidLoginData.Error()))
+	}
+
 	user.Password, err = hashPassword(user.Password)
 	if err != nil {
 		// log.Debug(err)
@@ -32,6 +36,12 @@ func SignUp(ctx *fiber.Ctx) error {
 	if result.Err() == nil {
 		log.Debug(result.Err())
 		return ctx.JSON(errResponseWithMsg(ErrEmailExists.Error()))
+	}
+
+	result = users.FindOne(context.TODO(), bson.M{"name": user.Name})
+	if result.Err() == nil {
+		log.Debug(result.Err())
+		return ctx.JSON(errResponseWithMsg(ErrUsernameTaken.Error()))
 	}
 
 	user.ID = primitive.NewObjectID()
@@ -49,6 +59,8 @@ func SignUp(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(
 		responseSuccess{
+			Name:    user.Name,
+			Email:   user.Email,
 			Message: userCreated,
 			Error:   false,
 			Access:  tokens.Access,
@@ -98,6 +110,8 @@ func Login(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(
 		responseSuccess{
+			Name:    userObj.Name,
+			Email:   userObj.Email,
 			Message: loginSuccess,
 			Error:   false,
 			Access:  tokens.Access,

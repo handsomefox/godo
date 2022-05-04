@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+
 	"godo/pkg/util"
 )
 
@@ -24,6 +25,7 @@ var (
 	ErrInvalidTokenFmt   = errors.New("invalid token format")
 	ErrUserDoesNotExist  = errors.New("user is not signed up")
 	ErrEmailExists       = errors.New("email already exists")
+	ErrUsernameTaken     = errors.New("user name is already taken")
 	ErrCreatingUser      = errors.New("error when creating user")
 	ErrCreatingTokens    = errors.New("error when creating tokens")
 	ErrHashingPwd        = errors.New("error hashing password")

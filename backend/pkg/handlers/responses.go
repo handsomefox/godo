@@ -25,9 +25,11 @@ func errResponseWithMsg(msg string) responseError {
 	}
 }
 
-// responseTasks is used when responding to registration requests that have succeeded.
+// responseTasks is used when responding to registration and login requests that have succeeded.
 // It is marshalled to JSON and sent back.
 type responseSuccess struct {
+	Name    string `json:"name"`
+	Email   string `json:"email"`
 	Message string `json:"message"`
 	Error   bool   `json:"error" default:"false"`
 	Access  string `json:"access_token"`

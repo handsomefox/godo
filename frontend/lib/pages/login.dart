@@ -122,7 +122,9 @@ class LoginButton extends StatelessWidget {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (context) => const MainWidget(),
+                  builder: (context) => MainWidget(
+                        user: user,
+                      ),
                   maintainState: false),
               (route) => false,
             );

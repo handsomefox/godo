@@ -1,16 +1,13 @@
-# frontend
+# godo-frontend
 
-A new Flutter project.
+This is the front-end for my task management application called godo.
+It is written in flutter and it is my first time using it.
 
-## Getting Started
+## Run
 
-This project is a starting point for a Flutter application.
+Call `flutter run` or `flutter run--release` to run the app.
 
-A few resources to get you started if this is your first Flutter project:
+## Issues
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+For now, the app does not persist any data from the database of the device itself.
+This means, that all the task management requires an internet connection as well as it has an added delay to the actions as we require the backend to do work in the background.

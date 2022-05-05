@@ -42,7 +42,5 @@ COPY --from=builder /etc/group /etc/group
 COPY --from=builder /go/bin /go/bin
 COPY --from=builder /web/ /go/bin/web
 
-ENV VIEW_PATH=/go/bin/views
-
 USER appuser:appuser
 ENTRYPOINT ["/go/bin/app"]

@@ -26,7 +26,7 @@ func main() {
 	defer log.Sync()
 
 	config := fiber.Config{
-		Prefork:      true,
+		Prefork:      false,
 		ServerHeader: "go-todo-app",
 		AppName:      "GoDO",
 		Immutable:    true,
@@ -47,5 +47,5 @@ func main() {
 	// Web UI
 	routes.Web("/", app)
 
-	app.Listen(os.Getenv("HOST") + ":" + os.Getenv("PORT"))
+	app.Listen(os.Getenv("HOST") + ":" + "8080")
 }

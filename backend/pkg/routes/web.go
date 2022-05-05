@@ -8,5 +8,5 @@ import (
 //
 // base route : /
 func Web(baseRoute string, app *fiber.App) {
-	app.Static(baseRoute, "/web")
+	app.Static(baseRoute, "go/bin/web")
 }

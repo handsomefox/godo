@@ -26,7 +26,7 @@ func main() {
 	defer log.Sync()
 
 	config := fiber.Config{
-		Prefork:      false,
+		Prefork:      true,
 		ServerHeader: "go-todo-app",
 		AppName:      "GoDO",
 		Immutable:    true,

@@ -37,7 +37,7 @@ class _AppWidgetState extends State<AppWidget> {
         ],
         supportedLocales: appSupportedLocales,
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.system,
         theme: getLightTheme(context),
         darkTheme: getDarkTheme(context),
         title: AppLocalizations.of(context)?.appName == null

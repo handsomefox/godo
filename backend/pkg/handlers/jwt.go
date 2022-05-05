@@ -12,9 +12,9 @@ import (
 
 var (
 	// accessExpiration is the expiration time for access token
-	accessExpiration = jwt.NewNumericDate(time.Now().Add(time.Hour * 1))
+	accessExpiration = jwt.NewNumericDate(time.Now().Add(time.Hour * 24))
 	// refreshExpiration is the expiration time for refresh token
-	refreshExpiration = jwt.NewNumericDate(time.Now().Add(time.Hour * 120))
+	refreshExpiration = jwt.NewNumericDate(time.Now().Add(time.Hour * 240))
 	// secret is a byte array from the environment
 	secret = []byte(os.Getenv("JWT_SECRET_KEY"))
 )

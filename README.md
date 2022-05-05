@@ -14,9 +14,9 @@ For more detailed README, read README.md at `frontend` or `backend` folders.
 
 Screenshots from Android:
 
-<img src="./screenshots/android-1.jpg" alt="Android image of the app" width="45%">
-<img src="./screenshots/android-2.jpg" alt="Android image of the app" width="45%">
+<img src="./screenshots/android-1.jpg" alt="Android image of the app" width="20%">
+<img src="./screenshots/android-2.jpg" alt="Android image of the app" width="20%">
 
 Screenshot from Windows:
 
-<img src="./screenshots/windows.png" alt="Android image of the app" width="75%">
+<img src="./screenshots/windows.png" alt="Android image of the app" width="35%">

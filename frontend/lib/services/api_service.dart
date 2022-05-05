@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/models/task_model.dart';
+import 'package:godo/models/task_model.dart';
 import 'package:http/http.dart' as http;
 
 class BaseApiService {
-  static const String _base = 'http://localhost:8080';
+  static const String _base = 'https://godo-web.herokuapp.com';
   static const String _api = '$_base/api/v1';
   final String _authPath = '$_api/auth';
   final String _tasksPath = '$_api/task';

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
-import 'package:frontend/providers/task_provider.dart';
+import 'package:godo/services/api_service.dart';
+import 'package:godo/providers/task_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/pages/home_page.dart';
+import 'package:godo/pages/home_page.dart';
 
 class AppWidget extends StatefulWidget {
   const AppWidget({Key? key, required this.user}) : super(key: key);

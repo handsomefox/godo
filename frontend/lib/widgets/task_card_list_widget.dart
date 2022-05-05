@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/task_model.dart';
-import 'package:frontend/pages/edit_task_page.dart';
-import 'package:frontend/services/auth_service.dart';
-import 'package:frontend/widgets/task_card_widget.dart';
+import 'package:godo/models/task_model.dart';
+import 'package:godo/pages/edit_task_page.dart';
+import 'package:godo/services/api_service.dart';
+import 'package:godo/widgets/task_card_widget.dart';
 
 class TaskCardListWidget extends StatelessWidget {
   const TaskCardListWidget({Key? key, required this.tasks, required this.user})

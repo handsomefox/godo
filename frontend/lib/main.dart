@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
-import 'package:frontend/services/storage_service.dart';
-import 'package:frontend/widgets/app_widget.dart';
+import 'package:godo/services/api_service.dart';
+import 'package:godo/services/storage_service.dart';
+import 'package:godo/widgets/app_widget.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 Future<User?> loadUser() async {
+  if (kIsWeb) {
+    return null;
+  }
   Data? storage = await StorageService.read();
   if (storage == null) {
     return null;

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
-import 'package:frontend/models/task_model.dart';
-import 'package:frontend/pages/register_page.dart';
-import 'package:frontend/pages/search_page.dart';
-import 'package:frontend/pages/edit_task_page.dart';
-import 'package:frontend/services/storage_service.dart';
-import 'package:frontend/widgets/app_widget.dart';
-import 'package:frontend/widgets/user_data_widget.dart';
-import 'package:frontend/providers/task_provider.dart';
-import 'package:frontend/widgets/task_card_list_widget.dart';
+import 'package:godo/services/api_service.dart';
+import 'package:godo/models/task_model.dart';
+import 'package:godo/pages/register_page.dart';
+import 'package:godo/pages/search_page.dart';
+import 'package:godo/pages/edit_task_page.dart';
+import 'package:godo/services/storage_service.dart';
+import 'package:godo/widgets/app_widget.dart';
+import 'package:godo/widgets/user_data_widget.dart';
+import 'package:godo/providers/task_provider.dart';
+import 'package:godo/widgets/task_card_list_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/pages/login_page.dart';
+import 'package:godo/pages/login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.user}) : super(key: key);

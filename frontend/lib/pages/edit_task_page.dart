@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:frontend/models/task_model.dart';
-import 'package:frontend/providers/task_provider.dart';
-import 'package:frontend/services/auth_service.dart';
-import 'package:frontend/widgets/name_input_widget.dart';
+import 'package:godo/models/task_model.dart';
+import 'package:godo/providers/task_provider.dart';
+import 'package:godo/services/api_service.dart';
+import 'package:godo/widgets/name_input_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

@@ -1,9 +1,13 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class StorageService {
   static const FlutterSecureStorage storage = FlutterSecureStorage();
 
   static void save(Data data) {
+    if (kIsWeb) {
+      return;
+    }
     storage.write(key: 'access', value: data.accessToken);
     storage.write(key: 'refresh', value: data.refreshToken);
     storage.write(key: 'name', value: data.name);
@@ -12,6 +16,9 @@ class StorageService {
   }
 
   static Future<Data?> read() async {
+    if (kIsWeb) {
+      return null;
+    }
     String? email = await storage.read(key: 'email');
     String? name = await storage.read(key: 'name');
     String? password = await storage.read(key: 'password');
@@ -35,6 +42,9 @@ class StorageService {
   }
 
   static void clear() {
+    if (kIsWeb) {
+      return;
+    }
     storage.delete(key: 'access');
     storage.delete(key: 'refresh');
     storage.delete(key: 'name');

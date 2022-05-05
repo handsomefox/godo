@@ -1,9 +1,9 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
+import 'package:godo/services/api_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:frontend/models/task_model.dart';
+import 'package:godo/models/task_model.dart';
 
 class TasksProvider with ChangeNotifier {
   TasksProvider();

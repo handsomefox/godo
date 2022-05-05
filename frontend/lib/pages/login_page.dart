@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:frontend/services/storage_service.dart';
+import 'package:godo/services/storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
-import 'package:frontend/widgets/gologo_widget.dart';
-import 'package:frontend/widgets/app_widget.dart';
-import 'package:frontend/widgets/password_input_widget.dart';
-import 'package:frontend/widgets/email_input_widget.dart';
+import 'package:godo/services/api_service.dart';
+import 'package:godo/widgets/gologo_widget.dart';
+import 'package:godo/widgets/app_widget.dart';
+import 'package:godo/widgets/password_input_widget.dart';
+import 'package:godo/widgets/email_input_widget.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 

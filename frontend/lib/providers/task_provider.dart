@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/services/auth_service.dart';
 import 'package:http/http.dart' as http;
@@ -59,6 +58,25 @@ class TasksProvider with ChangeNotifier {
                 int index = _tasks.indexOf(task);
                 _tasks.elementAt(index).id = id;
 
+                notifyListeners();
+              }(value, task)
+            },
+          );
+    } else {
+      notifyListeners();
+    }
+  }
+
+  void update(Task task, User? user) {
+    var index = _tasks.indexOf(task);
+    _tasks[index] = task;
+    BaseApiService api = BaseApiService();
+    if (user != null) {
+      api.updateTask(task, user).then(
+            (http.Response value) => {
+              (http.Response response, Task task) {
+                // We don't need the response
+                // Unless to check for errors :^)
                 notifyListeners();
               }(value, task)
             },

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:intl/intl.dart';
 
 class Subtask {
@@ -10,6 +8,10 @@ class Subtask {
   }
   String name;
   bool completed;
+
+  static Map<String, dynamic> toJson(Subtask subtask) {
+    return {'name': subtask.name, 'completed': subtask.completed};
+  }
 
   static Subtask get empty => Subtask(name: '', completed: false);
 
@@ -53,10 +55,10 @@ class Task {
   }
 
   String? id;
-  final String name;
-  final String desc;
-  final List<Subtask> subtasks;
-  final DateTime? due;
+  String name;
+  String desc;
+  List<Subtask> subtasks;
+  DateTime? due;
   bool completed;
 
   static Task get empty => Task(name: '', desc: '', subtasks: [], due: null);
@@ -77,7 +79,7 @@ class Task {
     }
 
     if (subtasks.isNotEmpty) {
-      map['subtasks'] = jsonEncode(subtasks);
+      map['subtasks'] = subtasks;
     }
 
     if (due != null) {

@@ -28,5 +28,6 @@
   "descriptionHint": "Enter the task description",
   "selectedTIme": "Selected date: ",
   "todoHint": "Enter to-do item",
-  "addTodoHint": "Add new to-do"
+  "addTodoHint": "Add new to-do",
+  "dbHint": "Sending data to the database!"
 }

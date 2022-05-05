@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/task_model.dart';
 import 'package:frontend/pages/edit_task_page.dart';
+import 'package:frontend/services/auth_service.dart';
 import 'package:frontend/widgets/task_card_widget.dart';
 
 class TaskCardListWidget extends StatelessWidget {
-  const TaskCardListWidget({Key? key, required this.tasks}) : super(key: key);
+  const TaskCardListWidget({Key? key, required this.tasks, required this.user})
+      : super(key: key);
+  final User? user;
   final List<Task> tasks;
 
   @override
@@ -24,6 +27,8 @@ class TaskCardListWidget extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (BuildContext context) => EditTaskPage(
                               task: task,
+                              isNew: false,
+                              user: user,
                             )));
               },
               child: Container(

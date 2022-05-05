@@ -40,7 +40,10 @@ class _HomePageState extends State<HomePage> {
                   size: 26.0,
                 ),
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SearchPage()),
+                  MaterialPageRoute(
+                      builder: (_) => SearchPage(
+                            user: widget.user,
+                          )),
                 ),
               ),
               PopupMenuButton(
@@ -89,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                             Widget? child) =>
                         TaskCardListWidget(
                       tasks: value.tasks(context),
+                      user: widget.user,
                     ),
                   ),
                 ],
@@ -102,7 +106,9 @@ class _HomePageState extends State<HomePage> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => EditTaskPage(
+                  isNew: true,
                   task: Task.empty,
+                  user: widget.user,
                 ),
               ),
             );

@@ -1,8 +1,5 @@
-// ignore_for_file: body_might_complete_normally_nullable
-
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/models/task_model.dart';
@@ -19,12 +16,36 @@ class BaseApiService {
   };
 
   Future<http.Response> insertTask(Task task, User user) async {
-    String encodedTask = jsonEncode(task.toJson());
+    dynamic encodedTask = jsonEncode(
+      task.toJson(),
+      toEncodable: (Object? value) => value is Subtask
+          ? Subtask.toJson(value)
+          : throw UnsupportedError('Cannot convert to JSON: $value'),
+    );
     http.Response response = await http.post(Uri.parse('$_tasksPath/tasks'),
         headers: {
-          HttpHeaders.authorizationHeader: 'Bearer ${user.accessToken}'
+          HttpHeaders.authorizationHeader: 'Bearer ${user.accessToken}',
+          HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
         },
         body: encodedTask);
+    return response;
+  }
+
+  Future<http.Response> updateTask(Task task, User user) async {
+    dynamic encodedTask = jsonEncode(
+      task.toJson(),
+      toEncodable: (Object? value) => value is Subtask
+          ? Subtask.toJson(value)
+          : throw UnsupportedError('Cannot convert to JSON: $value'),
+    );
+    var id = task.id;
+    http.Response response = await http.put(Uri.parse('$_tasksPath/tasks/$id'),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer ${user.accessToken}',
+          HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
+        },
+        body: encodedTask);
+
     return response;
   }
 

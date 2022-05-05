@@ -6,10 +6,24 @@ It uses `go-fiber` for the http server and does all the heavy-lifting for the ap
 
 ## Run
 
-Use `run.bat` on Windows or just run the app using
+First, compile frontend application using
+
+```bash
+flutter build web
+```
+
+Then, copy contents of the `build/web` folder to `backend/web`
+
+Finally use `run.bat` on Windows or just run the app using
 
 ```bash
 go run main.go
+```
+
+You can also use docker compose to start the app
+
+```bash
+docker-compose up
 ```
 
 ## Configuration
